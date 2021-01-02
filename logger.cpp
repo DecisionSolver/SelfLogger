@@ -50,7 +50,10 @@ void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
                 << "\033[0m"
                 << std::endl;
 #endif
-    } else if (level == LOG_LEVEL_DEBUG) {
+
+										/* 7-White */
+		SetConsoleTextAttribute(hConsole, 7);
+	} else if (level == LOG_LEVEL_DEBUG) {
 #if defined(DEBUG) || defined(_DEBUG)
         std::cout << message << std::endl;
 #endif
@@ -138,7 +141,8 @@ void CppLogger::print(
 std::string CppLogger::getDateTime() {
     auto now = std::chrono::system_clock::now();
     std::time_t start_time = std::chrono::system_clock::to_time_t(now);
-    auto buf = std::localtime(&start_time);
+	tm *buf = new tm();
+    localtime_s(buf, &start_time);
     char timedisplay[100];
     size_t len = std::strftime(timedisplay, sizeof(timedisplay), "%Y-%m-%d %H:%M:%S", buf);
 //        size_t len = std::strftime(timedisplay, sizeof(timedisplay), "%H:%M:%S", buf);
