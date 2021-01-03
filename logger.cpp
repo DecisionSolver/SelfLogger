@@ -43,6 +43,8 @@ void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleTextAttribute(hConsole, colorCode);
         std::cout << message << std::endl;
+										/* 7-White */
+		SetConsoleTextAttribute(hConsole, 7);
 #else
         std::cout
                 << "\033[" << colorCode << "m"
@@ -51,8 +53,6 @@ void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
                 << std::endl;
 #endif
 
-										/* 7-White */
-		SetConsoleTextAttribute(hConsole, 7);
 	} else if (level == LOG_LEVEL_DEBUG) {
 #if defined(DEBUG) || defined(_DEBUG)
         std::cout << message << std::endl;
