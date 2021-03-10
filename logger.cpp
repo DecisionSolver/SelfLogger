@@ -41,7 +41,7 @@ void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
     } else if (level == LOG_LEVEL_INFO || level == LOG_LEVEL_WARNING) {
 #ifdef _WIN32
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-        SetConsoleTextAttribute(hConsole, colorCode);
+        SetConsoleTextAttribute(hConsole, (WORD)colorCode);
         std::cout << message << std::endl;
 										/* 7-White */
 		SetConsoleTextAttribute(hConsole, 7);
