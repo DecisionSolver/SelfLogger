@@ -94,7 +94,7 @@ void CppLogger::print(
         const char *function, const char *file, long line,
         LogLevel level, const std::string &message
 ) {
-
+	if (LogLevelLabel.empty()) return;
     std::string levelLabel = LogLevelLabel[level];
     std::string text = getDateTime() + " [" + levelLabel + "] - "
                        + message + "\t" + file + ":" + std::to_string(line) + " " + function;
