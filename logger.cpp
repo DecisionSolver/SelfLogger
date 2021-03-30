@@ -43,8 +43,8 @@ void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
         HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
         SetConsoleTextAttribute(hConsole, (WORD)colorCode);
         std::cout << message << std::endl;
-										/* 7-White */
-		SetConsoleTextAttribute(hConsole, 7);
+                                        /* 7-White */
+        SetConsoleTextAttribute(hConsole, 7);
 #else
         std::cout
                 << "\033[" << colorCode << "m"
@@ -53,7 +53,7 @@ void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
                 << std::endl;
 #endif
 
-	} else if (level == LOG_LEVEL_DEBUG) {
+    } else if (level == LOG_LEVEL_DEBUG) {
 #if defined(DEBUG) || defined(_DEBUG)
         std::cout << message << std::endl;
 #endif
@@ -94,7 +94,7 @@ void CppLogger::print(
         const char *function, const char *file, long line,
         LogLevel level, const std::string &message
 ) {
-	if (LogLevelLabel.empty()) return;
+    if (LogLevelLabel.empty()) return;
     std::string levelLabel = LogLevelLabel[level];
     std::string text = getDateTime() + " [" + levelLabel + "] - "
                        + message + "\t" + file + ":" + std::to_string(line) + " " + function;
@@ -139,12 +139,22 @@ void CppLogger::print(
 }
 
 std::string CppLogger::getDateTime() {
+#ifdef _WIN32
     auto now = std::chrono::system_clock::now();
     std::time_t start_time = std::chrono::system_clock::to_time_t(now);
-	tm *buf = new tm();
+    tm *buf = new tm();
     localtime_s(buf, &start_time);
     char timedisplay[100];
     size_t len = std::strftime(timedisplay, sizeof(timedisplay), "%Y-%m-%d %H:%M:%S", buf);
-//        size_t len = std::strftime(timedisplay, sizeof(timedisplay), "%H:%M:%S", buf);
     return std::string(timedisplay, len);
+#else
+    time_t now = time(nullptr);
+    struct tm timeStruct;
+    char buf[80];
+    timeStruct = *localtime(&now);
+
+    strftime(buf, sizeof(buf), "%Y-%m-%d %H:%M:%S", &timeStruct);
+
+    return buf;
+#endif
 }
