@@ -17,9 +17,6 @@
 
 #ifdef _WIN32
 
-#include <Windows.h>
-
-
 #define COLOR_TEXT_RED      12
 #define COLOR_TEXT_GREEN    10
 #define COLOR_TEXT_YELLOW   14
@@ -51,8 +48,12 @@ public:
 
     virtual void write(LogLevel level, const std::string &message) = 0;
 
+	void enablePrint() { DisablePrint = false; }
+	void disablePrint() { DisablePrint = true; }
 protected:
     LogLevel mLevel;
+
+	bool DisablePrint = false;
 };
 
 class ConsoleLoggerTarget : public AbstractLoggerTarget {
@@ -85,7 +86,8 @@ public:
 
     static void print(char const *function, char const *file, long line,
                       LogLevel level, const std::string &message);
-
+	static void DisablePrintAll();
+	static void EnablePrintAll();
 private:
     static std::vector<AbstractLoggerTarget *> mTargets;
 

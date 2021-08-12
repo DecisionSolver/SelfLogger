@@ -3,6 +3,7 @@
 //
 
 #include "logger.h"
+#include <Windows.h>
 
 std::map<LogLevel, int> LogLevelColor = {
         {LOG_LEVEL_DEBUG, 0},
@@ -13,6 +14,8 @@ std::map<LogLevel, int> LogLevelColor = {
         {LOG_LEVEL_FATAL,    COLOR_TEXT_RED},
 };
 
+#include <mutex>
+std::mutex m_mutex;
 std::map<LogLevel, std::string> LogLevelLabel = {
         {LOG_LEVEL_DEBUG,    "DEBUG"},
         {LOG_LEVEL_INFO,     "INFO"},
@@ -34,7 +37,8 @@ ConsoleLoggerTarget::ConsoleLoggerTarget(LogLevel level)
 }
 
 void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
-    int colorCode = LogLevelColor[level];
+	if (DisablePrint) return;
+	int colorCode = LogLevelColor[level];
 
     if (level >= LOG_LEVEL_ERROR) {
         std::cerr << message << std::endl;
@@ -64,7 +68,8 @@ FileLoggerTarget::FileLoggerTarget(const std::string &filename, LogLevel level)
         : AbstractLoggerTarget(level), mOut(filename, std::ofstream::app) {}
 
 void FileLoggerTarget::write(LogLevel level, const std::string &message) {
-    mOut << message << std::endl;
+	if (DisablePrint) return;
+	mOut << message << std::endl;
 }
 
 MCVCLoggerTarget::MCVCLoggerTarget(LogLevel level) : AbstractLoggerTarget(level) {
@@ -72,6 +77,7 @@ MCVCLoggerTarget::MCVCLoggerTarget(LogLevel level) : AbstractLoggerTarget(level)
 }
 
 void MCVCLoggerTarget::write(LogLevel level, const std::string &message) {
+	if (DisablePrint) return;
 #ifdef _MSC_VER
     OutputDebugStringA(message.c_str());
     OutputDebugStringA("\n");
@@ -94,6 +100,7 @@ void CppLogger::print(
         const char *function, const char *file, long line,
         LogLevel level, const std::string &message
 ) {
+	std::scoped_lock<std::mutex> lock(m_mutex);
     if (LogLevelLabel.empty()) return;
     std::string levelLabel = LogLevelLabel[level];
     std::string text = getDateTime() + " [" + levelLabel + "] - "
@@ -136,6 +143,22 @@ void CppLogger::print(
 //                << " at " << file << ":" << line << " " << function
 //                << std::endl;
 //#endif
+}
+
+void CppLogger::DisablePrintAll()
+{
+	std::scoped_lock<std::mutex> lock(m_mutex);
+	for (auto &t : mTargets) {
+		t->disablePrint();
+	}
+}
+
+void CppLogger::EnablePrintAll()
+{
+	std::scoped_lock<std::mutex> lock(m_mutex);
+	for (auto &t : mTargets) {
+		t->enablePrint();
+	}
 }
 
 std::string CppLogger::getDateTime() {
