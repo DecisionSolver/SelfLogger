@@ -37,7 +37,8 @@ ConsoleLoggerTarget::ConsoleLoggerTarget(LogLevel level)
 }
 
 void ConsoleLoggerTarget::write(LogLevel level, const std::string &message) {
-	if (DisablePrint) return;
+	if (DisablePrint || LogLevelLabel.empty() || LogLevelColor.empty()) return;
+
 	int colorCode = LogLevelColor[level];
 
     if (level >= LOG_LEVEL_ERROR) {
@@ -101,8 +102,10 @@ void CppLogger::print(
         LogLevel level, const std::string &message
 ) {
 	std::scoped_lock<std::mutex> lock(m_mutex);
-    if (LogLevelLabel.empty()) return;
-    std::string levelLabel = LogLevelLabel[level];
+    if (LogLevelLabel.empty() || LogLevelColor.empty()) return;
+	int colorCode = LogLevelColor[level];
+
+	std::string levelLabel = LogLevelLabel[level];
     std::string text = getDateTime() + " [" + levelLabel + "] - "
                        + message + "\t" + file + ":" + std::to_string(line) + " " + function;
 
@@ -116,33 +119,33 @@ void CppLogger::print(
     if (level == LOG_LEVEL_CRITICAL) throw std::runtime_error(message);
     if (level == LOG_LEVEL_FATAL) exit(EXIT_FAILURE);
 
-//#ifdef _WIN32
-//
-//#if defined(_DEBUG)
-//        std::string text =
-//                "[" + levelLabel + "] - " + getDateTime() + " - "
-//                + message + " at " + file + ":" + std::to_string(line) + " " + function;
-//        OutputDebugStringA(text.c_str());
-//#else
-//        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-//        SetConsoleTextAttribute(hConsole, colorCode);
-//        std::cout
-//                << "[" << levelLabel << "] - " << message;
-//
-//        SetConsoleTextAttribute(hConsole, 0);
-//        std::cout
-//                << " at " << file << ":" << line << " " << function
-//                << std::endl;
-//#endif
-//
-//#else
-//        std::cout
-//                << "\033[" << colorCode << "m"
-//                << "[" << levelLabel << "] - " << getDateTime() << " - " << message
-//                << "\033[0m"
-//                << " at " << file << ":" << line << " " << function
-//                << std::endl;
-//#endif
+#ifdef _WIN32
+
+#if defined(_DEBUG)
+        OutputDebugStringA(text.c_str());
+#else
+        HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+		if (hConsole)
+		{
+			SetConsoleTextAttribute(hConsole, (WORD)colorCode);
+			std::cout
+				<< "[" << levelLabel << "] - " << message;
+
+			SetConsoleTextAttribute(hConsole, 0);
+			std::cout
+				<< " at " << file << ":" << line << " " << function
+				<< std::endl;
+		}
+#endif
+
+#else
+        std::cout
+                << "\033[" << colorCode << "m"
+                << "[" << levelLabel << "] - " << getDateTime() << " - " << message
+                << "\033[0m"
+                << " at " << file << ":" << line << " " << function
+                << std::endl;
+#endif
 }
 
 void CppLogger::DisablePrintAll()
