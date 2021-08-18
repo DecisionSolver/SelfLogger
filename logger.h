@@ -94,6 +94,8 @@ private:
     static std::string getDateTime();
 };
 
+std::string strPrintf(const char* message, ...);
+
 #define MacroStr(x) #x
 #define MacroStr2(x) MacroStr(x)
 #define ToDo(desc) __pragma(message(__FILE__ "(" MacroStr2(__LINE__) "): " #desc))
@@ -116,37 +118,17 @@ private:
 #define Logger_Critical(message) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_CRITICAL), (message));
 #define Logger_Fatal(message)    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_FATAL),    (message));
 
-ToDo("Bug: Overflow These Functions If ... String More Than 2048 Bits")
-#define Logger_Debug_F(message, ...) {                                              \
-    char buff[2048];																\
-    sprintf_s(buff, sizeof buff, message, __VA_ARGS__);                             \
-    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_DEBUG), buff);    \
-}
-#define Logger_Info_F(message, ...) {                                               \
-    char buff[2048];																\
-    sprintf_s(buff, sizeof buff, message, __VA_ARGS__);                             \
-    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_INFO), buff);     \
-}
-#define Logger_Warn_F(message, ...) {                                               \
-    char buff[2048];																\
-    sprintf_s(buff, sizeof buff, message, __VA_ARGS__);                             \
-    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_WARNING), buff);  \
-}
-#define Logger_Error_F(message, ...) {                                              \
-    char buff[2048];																\
-    sprintf_s(buff, sizeof buff, message, __VA_ARGS__);                             \
-    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_ERROR), buff);    \
-}
-#define Logger_Critical_F(message, ...) {                                           \
-    char buff[2048];																\
-    sprintf_s(buff, sizeof buff, message, __VA_ARGS__);                             \
-    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_CRITICAL), buff); \
-}
-#define Logger_Fatal_F(message, ...) {                                              \
-    char buff[2048];																\
-    sprintf_s(buff, sizeof buff, message, __VA_ARGS__);                             \
-    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_FATAL), buff);    \
-}
+#define Logger_Debug_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_DEBUG), strPrintf(message, __VA_ARGS__).c_str());
+
+#define Logger_Info_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_INFO), strPrintf(message, __VA_ARGS__).c_str());
+
+#define Logger_Warn_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_WARNING), strPrintf(message, __VA_ARGS__).c_str());
+
+#define Logger_Error_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_ERROR), strPrintf(message, __VA_ARGS__).c_str());
+
+#define Logger_Critical_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_CRITICAL), strPrintf(message, __VA_ARGS__).c_str());
+
+#define Logger_Fatal_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_FATAL), strPrintf(message, __VA_ARGS__).c_str());
 
 #endif
 
