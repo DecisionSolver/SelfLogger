@@ -1,8 +1,9 @@
 //
 // Created by GOFORBROKE on 23.10.2020.
 //
-#include "../pch.h"
+#include "pch.h"
 #include "logger.h"
+#include <mutex>
 
 std::map<LogLevel, int> LogLevelColor = {
         {LOG_LEVEL_DEBUG, 0},
@@ -68,6 +69,7 @@ FileLoggerTarget::FileLoggerTarget(const std::string &filename, LogLevel level)
 void FileLoggerTarget::write(LogLevel level, const std::string &message) {
 	if (DisablePrint) return;
 	mOut << message << std::endl;
+    mOut.flush();
 }
 
 MCVCLoggerTarget::MCVCLoggerTarget(LogLevel level) : AbstractLoggerTarget(level) {

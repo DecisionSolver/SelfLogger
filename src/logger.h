@@ -5,7 +5,7 @@
 #ifndef GFB_LOGGER_H
 #define GFB_LOGGER_H
 
-#include "../pch.h"
+#include "pch.h"
 
 enum LogLevel {
     LOG_LEVEL_DEBUG = 1,

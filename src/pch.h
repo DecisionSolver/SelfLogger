@@ -13,7 +13,7 @@
 #include <fstream>
 #include <sstream>
 #include <stdio.h>
-#include <mutex>
+#define FMT_HEADER_ONLY
 #include "fmt/include/fmt/format.h"
 #include "fmt/include/fmt/core.h"
 
