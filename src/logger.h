@@ -6,6 +6,11 @@
 #define GFB_LOGGER_H
 
 #include "pch.h"
+#include <string>
+#include <vector>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 
 enum LogLevel {
     LOG_LEVEL_DEBUG = 1,

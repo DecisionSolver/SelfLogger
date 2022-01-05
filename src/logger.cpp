@@ -4,6 +4,12 @@
 #include "pch.h"
 #include "logger.h"
 #include <mutex>
+#include <Windows.h>
+#include <stdexcept>
+#include <chrono>
+#include <ctime>
+#include <map>
+#include <stdio.h>
 
 std::map<LogLevel, int> LogLevelColor = {
         {LOG_LEVEL_DEBUG, 0},
