@@ -5,7 +5,29 @@
 #ifndef GFB_LOGGER_H
 #define GFB_LOGGER_H
 
-#include "pch.h"
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+#define FMT_HEADER_ONLY
+#include "fmt/include/fmt/format.h"
+#include "fmt/include/fmt/core.h"
+
+#ifdef _WIN32
+
+#define COLOR_TEXT_RED      12
+#define COLOR_TEXT_GREEN    10
+#define COLOR_TEXT_YELLOW   14
+#define COLOR_TEXT_MAGENTA  13
+
+#else
+
+#define COLOR_TEXT_RED      31
+#define COLOR_TEXT_GREEN    32
+#define COLOR_TEXT_YELLOW   33
+#define COLOR_TEXT_MAGENTA  35
+
+#endif
+
 #include <string>
 #include <vector>
 #include <iostream>
@@ -13,66 +35,66 @@
 #include <sstream>
 
 enum LogLevel {
-    LOG_LEVEL_DEBUG = 1,
-    LOG_LEVEL_INFO = 2,
-    LOG_LEVEL_WARNING = 3,
-    LOG_LEVEL_ERROR = 4,
-    LOG_LEVEL_CRITICAL = 5,
-    LOG_LEVEL_FATAL = 6,
+	LOG_LEVEL_DEBUG = 1,
+	LOG_LEVEL_INFO = 2,
+	LOG_LEVEL_WARNING = 3,
+	LOG_LEVEL_ERROR = 4,
+	LOG_LEVEL_CRITICAL = 5,
+	LOG_LEVEL_FATAL = 6,
 };
 
 class AbstractLoggerTarget {
 public:
-    explicit AbstractLoggerTarget(LogLevel level);
+	explicit AbstractLoggerTarget(LogLevel level);
 
-    bool applicable(LogLevel level);
+	bool applicable(LogLevel level);
 
-    virtual void write(LogLevel level, const std::string &message) = 0;
+	virtual void write(LogLevel level, const std::string &message) = 0;
 
 	void enablePrint() { DisablePrint = false; }
 	void disablePrint() { DisablePrint = true; }
 protected:
-    LogLevel mLevel;
+	LogLevel mLevel;
 
 	bool DisablePrint = false;
 };
 
 class ConsoleLoggerTarget : public AbstractLoggerTarget {
 public:
-    explicit ConsoleLoggerTarget(LogLevel level);
+	explicit ConsoleLoggerTarget(LogLevel level);
 
-    void write(LogLevel level, const std::string &message) override;
+	void write(LogLevel level, const std::string &message) override;
 };
 
 class FileLoggerTarget : public AbstractLoggerTarget {
 public:
-    FileLoggerTarget(const std::string &filename, LogLevel level);
+	FileLoggerTarget(const std::string &filename, LogLevel level);
 
-    void write(LogLevel level, const std::string &message) override;
+	void write(LogLevel level, const std::string &message) override;
 
 private:
-    std::ofstream mOut;
+	std::ofstream mOut;
 };
 
 class MCVCLoggerTarget : public AbstractLoggerTarget {
 public:
-    MCVCLoggerTarget(LogLevel level);
+	MCVCLoggerTarget(LogLevel level);
 
-    void write(LogLevel level, const std::string &message) override;
+	void write(LogLevel level, const std::string &message) override;
 };
 
 class CppLogger {
 public:
-    static void registerTarget(AbstractLoggerTarget *t);
+	static void registerTarget(const std::shared_ptr<AbstractLoggerTarget> &t);
 
-    static void print(char const *function, char const *file, long line,
-                      LogLevel level, const std::string &message);
+	static void print(char const *function, char const *file, long line,
+					  LogLevel level, const std::string &message);
 	static void DisablePrintAll();
 	static void EnablePrintAll();
-private:
-    static std::vector<AbstractLoggerTarget *> mTargets;
 
-    static std::string getDateTime();
+	static std::string getDateTime();
+private:
+	static std::vector<std::shared_ptr<AbstractLoggerTarget>> mTargets;
 };
 
 #define MacroStr(x) #x
@@ -97,17 +119,17 @@ private:
 #define Logger_Critical(message) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_CRITICAL), (message));
 #define Logger_Fatal(message)    CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_FATAL),    (message));
 
-#define Logger_Debug_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_DEBUG), fmt::format(message, __VA_ARGS__).c_str());
+#define Logger_Debug_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_DEBUG), fmt::format(message, __VA_ARGS__));
 
-#define Logger_Info_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_INFO), fmt::format(message, __VA_ARGS__).c_str());
+#define Logger_Info_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_INFO), fmt::format(message, __VA_ARGS__));
 
-#define Logger_Warn_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_WARNING), fmt::format(message, __VA_ARGS__).c_str());
+#define Logger_Warn_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_WARNING), fmt::format(message, __VA_ARGS__));
 
-#define Logger_Error_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_ERROR), fmt::format(message, __VA_ARGS__).c_str());
+#define Logger_Error_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_ERROR), fmt::format(message, __VA_ARGS__));
 
-#define Logger_Critical_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_CRITICAL), fmt::format(message, __VA_ARGS__).c_str());
+#define Logger_Critical_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_CRITICAL), fmt::format(message, __VA_ARGS__));
 
-#define Logger_Fatal_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_FATAL), fmt::format(message, __VA_ARGS__).c_str());
+#define Logger_Fatal_F(message, ...) CppLogger::print(__FUNCTION__, __FILE__, __LINE__, (LOG_LEVEL_FATAL), fmt::format(message, __VA_ARGS__));
 
 #endif
 

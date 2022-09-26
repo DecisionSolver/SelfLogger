@@ -21,9 +21,6 @@
     <ClInclude Include="src\logger.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="src\pch.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="src\fmt\include\fmt\args.h">
       <Filter>fmt</Filter>
     </ClInclude>
@@ -66,9 +63,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\logger.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
-    <ClCompile Include="src\pch.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
